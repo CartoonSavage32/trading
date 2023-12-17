@@ -64,7 +64,7 @@ const Login: React.FC = () => {
                 </Button>
                 {loginError && (
                     <Typography variant="body1" color="error">
-                        Wrong username or password. Please try again.
+                        Username/email or password is incorrect. Please try again.
                     </Typography>
                 )}
             </form>

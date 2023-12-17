@@ -1,38 +1,14 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS 
+from flask import Flask
+from flask_cors import CORS
+from src.routes import user_routes
 
-app = Flask(__name__)
-CORS(app) 
+def create_app():
+    app = Flask(__name__)
+    CORS(app, resources={r"/*": {"origins": "*"}})  # Enable CORS for all origins and all methods
+    app.register_blueprint(user_routes.bp)
+    return app
 
-# Placeholder for storing user data
-users = {}
+app = create_app()
 
-@app.route('/login', methods=['POST'])
-def login():
-    data = request.json
-    username = data.get('username')
-    password = data.get('password')
-
-    # Check if the user exists in the users dictionary
-    if username in users and users[username]['password'] == password:
-        return jsonify({'message': 'Login successful'})
-    else:
-        return jsonify({'message': 'Invalid credentials'}), 401
-
-@app.route('/signup', methods=['POST'])
-def signup():
-    data = request.json
-    username = data.get('username')
-    password = data.get('password')
-
-    # Check if the username already exists
-    if username in users:
-        return jsonify({'message': 'Username already exists'}), 400
-
-    # Store user data in the users dictionary
-    users[username] = {'username': username, 'password': password}
-    
-    return jsonify({'message': 'Signup successful'})
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
