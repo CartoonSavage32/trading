@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import axios from 'axios'
+import FormField from '../components/FormField';
 import {
     Container,
     Box,
@@ -8,11 +10,7 @@ import {
     Snackbar
 } from '@mui/material';
 import { Alert } from '@mui/material';
-import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { DatePicker } from '@mui/x-date-pickers';
-import FormField from '../components/FormField';
-import axios from 'axios'
+import { useNavigate } from 'react-router-dom';
 
 const SignupForm: React.FC = () => {
     const [username, setUsername] = useState('');
@@ -21,7 +19,6 @@ const SignupForm: React.FC = () => {
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [emailError, setEmailError] = useState(false);
     const [passwordError, setPasswordError] = useState(false);
     const [usernameError, setUsernameError] = useState(false);
@@ -29,8 +26,8 @@ const SignupForm: React.FC = () => {
     const [lastNameError, setLastNameError] = useState(false);
     const [confirmPasswordError, setConfirmPasswordError] = useState(false);
     const [passwordMatchError, setPasswordMatchError] = useState(false);
-    const [dobError, setDobError] = useState(false);
     const [signupSuccess, setSignupSuccess] = useState(false);
+    const navigate = useNavigate();
 
     const handleSignup = async () => {
         // Clear previous errors
@@ -92,23 +89,12 @@ const SignupForm: React.FC = () => {
             setPasswordMatchError(false);
         }
 
-        // Check if selected date is at least 18 years before current date
-        const eighteenYearsAgo = new Date();
-        eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear() - 18);
-        if (selectedDate && selectedDate > eighteenYearsAgo) {
-            setDobError(true);
-            return;
-        } else {
-            setDobError(false);
-        }
-
         try {
             const response = await axios.post('http://127.0.0.1:5000/signup', {
                 name,
                 lastName,
                 username,
                 email,
-                selectedDate,
                 password,
                 confirmPassword
             });
@@ -119,18 +105,18 @@ const SignupForm: React.FC = () => {
             setEmail('');
             setPassword('');
             setConfirmPassword('');
-            setSelectedDate(null);
             // Handle successful signup response
             console.log('Signup successful:', response.data);
             setSignupSuccess(true);
+
+            if (response.status === 200) {
+                navigate('/login');
+            }
+
         } catch (error) {
             // Handle signup error
             console.error('Signup error:', error)
         }
-    };
-
-    const handleDateChange = (date: Date | null) => {
-        setSelectedDate(date);
     };
 
     return (<Container maxWidth="sm">
@@ -197,13 +183,6 @@ const SignupForm: React.FC = () => {
                     </Grid>
                     <Grid item
                         xs={12}>
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DatePicker label="Date of Birth" value={selectedDate} onChange={handleDateChange} />
-                            {dobError && <Typography variant="caption" color="error">You must be at least 18 years old</Typography>}
-                        </LocalizationProvider>
-                    </Grid>
-                    <Grid item
-                        xs={12}>
                         <FormField label="Password"
                             value={password}
                             onChange={setPassword}
@@ -224,7 +203,7 @@ const SignupForm: React.FC = () => {
                     </Grid>
                 </Grid>
                 <Button variant="contained" color="primary"
-                    onClick={handleSignup}
+                    type="submit"
                     sx={
                         { marginTop: '16px' }
                     }>

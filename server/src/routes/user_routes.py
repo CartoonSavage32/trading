@@ -43,9 +43,24 @@ def signup():
 
 
 @bp.route("/dashboard", methods=["POST"])
-def dashboard():
+def dashboard_api_authentication():
     data = request.json
     session_id = data.get("session_id")
+
+    # Find the user with the provided session ID
+    for user in users.values():
+        if user.get("session_id") == session_id:
+            username = user["username"]
+            break
+    else:
+        return jsonify({"message": "Invalid session ID"}), 401
+
+    # Check if the user already has the credentials saved
+    if "credentials" in users[username]:
+        # If the credentials are already saved, return a success message
+        return jsonify({"message": "Credentials already saved"}), 200
+
+    # If the credentials are not saved, proceed with saving them
     APP_ID = data.get("appId")
     SECRETE_KEY = data.get("secretKey")
     FY_ID = data.get("fyId")

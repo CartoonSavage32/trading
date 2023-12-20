@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import axios from 'axios';
+import FormField from '../components/FormField';
 import {
     Typography,
     Button,
@@ -7,8 +9,6 @@ import {
     Grid
 } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
-import FormField from '../components/FormField';
-import axios from 'axios';
 
 const Login: React.FC = () => {
     const [username, setUsername] = useState('');
@@ -49,7 +49,7 @@ const Login: React.FC = () => {
                 <Typography variant="h4" gutterBottom>
                     Login
                 </Typography>
-                <form>
+                <form onSubmit={(e) => { e.preventDefault(); handleLogin(); }}>
                     <Grid container spacing={2}>
                         <Grid item
                             xs={12} >
@@ -60,7 +60,7 @@ const Login: React.FC = () => {
                             <FormField label="Password" value={password} onChange={setPassword} type="password" />
                         </Grid>
                     </Grid>
-                    <Button variant="contained" color="primary" onClick={handleLogin} sx={{ marginTop: '16px' }}>
+                    <Button variant="contained" color="primary" type="submit" sx={{ marginTop: '16px' }}>
                         Login
                     </Button>
                     {loginError && (
