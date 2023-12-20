@@ -1,9 +1,6 @@
-import os
-import base64
 import uuid
-from cryptography.fernet import Fernet
 from flask import Blueprint, request, jsonify
-from services.fyers_auth_service import FyersDataService
+from src.services.fyers_auth_service import FyersAuthService
 
 bp = Blueprint("user", __name__)
 
@@ -49,11 +46,11 @@ def signup():
 def dashboard():
     data = request.json
     session_id = data.get("session_id")
-    appId = data.get("appId")
-    secretKey = data.get("secretKey")
-    fyId = data.get("fyId")
-    totp = data.get("totp")
-    pin = data.get("pin")
+    APP_ID = data.get("appId")
+    SECRETE_KEY = data.get("secretKey")
+    FY_ID = data.get("fyId")
+    TOTP_KEY = data.get("totp")
+    PIN = data.get("pin")
 
     # Find the user with the provided session ID
     for user in users.values():
@@ -62,34 +59,26 @@ def dashboard():
             break
     else:
         return jsonify({"message": "Invalid session ID"}), 401
-
-    # Generate a key for encryption and decryption
-    key = base64.urlsafe_b64encode(os.urandom(32))
-    cipher_suite = Fernet(key)
-
-    # Encrypt the credentials
-    encrypted_appId = cipher_suite.encrypt(appId.encode("utf-8"))
-    encrypted_secretKey = cipher_suite.encrypt(secretKey.encode("utf-8"))
-    encrypted_fyId = cipher_suite.encrypt(fyId.encode("utf-8"))
-    encrypted_totp = cipher_suite.encrypt(totp.encode("utf-8"))
-    encrypted_pin = cipher_suite.encrypt(pin.encode("utf-8"))
-
+    
     # Store the encrypted credentials in the users dictionary
     users[username]["credentials"] = {
-        "appId": encrypted_appId,
-        "secretKey": encrypted_secretKey,
-        "fyId": encrypted_fyId,
-        "totp": encrypted_totp,
-        "pin": encrypted_pin,
+        "appId": APP_ID,
+        "secretKey": SECRETE_KEY,
+        "fyId": FY_ID,
+        "totp": TOTP_KEY,
+        "pin": PIN,
     }
 
     # Instantiate FyersDataService with the encrypted credentials
-    fyers_service = FyersDataService(
-        encrypted_appId,
-        encrypted_secretKey,
-        encrypted_fyId,
-        encrypted_totp,
-        encrypted_pin,
+    fyers_service = FyersAuthService(
+        APP_ID,
+        SECRETE_KEY,
+        FY_ID,
+        TOTP_KEY,
+        PIN,
     )
-
-    return jsonify(fyers_service.status)
+    if fyers_service.status["status"] == "success":
+        profile = fyers_service.get_fyers_profile()
+        return jsonify(profile)
+    else:
+        return jsonify(fyers_service.status)

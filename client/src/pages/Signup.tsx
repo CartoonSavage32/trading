@@ -7,7 +7,7 @@ import {
     Grid,
     Snackbar
 } from '@mui/material';
-import Alert from '@mui/lab/Alert';
+import { Alert } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers';

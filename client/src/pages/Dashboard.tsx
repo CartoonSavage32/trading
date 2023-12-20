@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
-import TextField from '@mui/material/TextField';
+import FormField from '../components/FormField';
 import Button from '@mui/material/Button';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
@@ -23,6 +23,8 @@ const Dashboard: React.FC = () => {
     const [fyIdError, setFyIdError] = useState(false);
     const [totpError, setTotpError] = useState(false);
     const [pinError, setPinError] = useState(false);
+    const [apiResponse, setApiResponse] = useState('');
+    const [responseModalOpen, setResponseModalOpen] = useState(false);
 
 
     const handleClose = async () => {
@@ -62,10 +64,13 @@ const Dashboard: React.FC = () => {
             return;
         }
 
+        // Retrieve the session_id from localStorage
+        const session_id = localStorage.getItem('session_id');
 
         // Send these credentials to your backend for authentication
         try {
             const response = await axios.post('http://127.0.0.1:5000/dashboard', {
+                session_id,
                 appId,
                 secretKey,
                 fyId,
@@ -73,13 +78,30 @@ const Dashboard: React.FC = () => {
                 pin
             });
             console.log(response.data);
+            if (response.status === 200) {
+                setApiResponse(JSON.stringify(response.data));
+            } else {
+                setApiResponse('Error: ' + JSON.stringify(response.data));
+            }
         } catch (error) {
             console.error(error);
+            setApiResponse(JSON.stringify(error));
         }
 
         // If everything is fine, close the modal
         setOpen(false);
     };
+
+    const handlePinChange = (value: string) => {
+        const onlyNums = value.replace(/[^0-9]/g, '')
+        setPin(onlyNums);
+    }
+    useEffect(() => {
+        if (apiResponse) {
+            setResponseModalOpen(true);
+        }
+    }, [apiResponse]);
+
 
     return (
         <div>
@@ -111,24 +133,18 @@ const Dashboard: React.FC = () => {
 
                         }}>
                             <h2 id="modal-modal-title">Enter your Fyers API credentials</h2>
-                            <TextField
-                                id="app-id-input"
+                            <FormField
                                 label="App ID"
-                                variant="outlined"
-                                fullWidth
                                 value={appId}
-                                onChange={(e) => setAppId(e.target.value)}
+                                onChange={setAppId}
                                 error={appIdError}
                                 helperText={appIdError ? 'App ID is required' : ''}
                             />
-                            <TextField
-                                id="secret-key-input"
+                            <FormField
                                 label="Secret Key"
-                                variant="outlined"
-                                fullWidth
                                 type={showSecretKey ? 'text' : 'password'}
                                 value={secretKey}
-                                onChange={(e) => setSecretKey(e.target.value)}
+                                onChange={setSecretKey}
                                 error={secretKeyError}
                                 helperText={secretKeyError ? 'Secret Key is required' : ''}
                                 style={{ marginTop: '1rem' }}
@@ -144,25 +160,20 @@ const Dashboard: React.FC = () => {
                                     )
                                 }}
                             />
-                            <TextField
-                                id="fy-id-input"
+                            <FormField
                                 label="FY ID"
-                                variant="outlined"
-                                fullWidth
                                 value={fyId}
-                                onChange={(e) => setFyId(e.target.value)}
+                                onChange={setFyId}
                                 error={fyIdError}
                                 helperText={fyIdError ? 'Fyers ID is required' : ''}
                                 style={{ marginTop: '1rem' }}
                             />
-                            <TextField
-                                id="totp-input"
+                            <FormField
                                 label="TOTP"
-                                variant="outlined"
-                                fullWidth
+
                                 type={showTotp ? 'text' : 'password'}
                                 value={totp}
-                                onChange={(e) => setTotp(e.target.value)}
+                                onChange={setTotp}
                                 error={totpError}
                                 helperText={totpError ? 'Totp is required' : ''}
                                 style={{ marginTop: '1rem' }}
@@ -179,17 +190,11 @@ const Dashboard: React.FC = () => {
                                     )
                                 }}
                             />
-                            <TextField
-                                id="pin-input"
+                            <FormField
                                 label="PIN"
-                                variant="outlined"
-                                fullWidth
                                 type={showPin ? 'text' : 'password'}
                                 value={pin}
-                                onChange={(e) => {
-                                    const onlyNums = e.target.value.replace(/[^0-9]/g, '');
-                                    setPin(onlyNums);
-                                }}
+                                onChange={handlePinChange}
                                 error={pinError}
                                 helperText={pinError ? (pin.length !== 4 ? 'PIN must be 4 digits' : 'PIN is required') : ''}
                                 style={{ marginTop: '1rem' }}
@@ -217,6 +222,30 @@ const Dashboard: React.FC = () => {
                         </Box>
                     </Grid>
                 </Grid>
+            </Modal>
+            <Modal
+                open={responseModalOpen}
+                onClose={() => setResponseModalOpen(false)}
+                aria-labelledby="response-modal-title"
+                aria-describedby="response-modal-description"
+            >
+                <Box sx={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    width: 400,
+                    bgcolor: 'background.paper',
+                    border: '2px solid #000',
+                    boxShadow: 24,
+                    p: 4,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                }}>
+                    <h2 id="response-modal-title">API Response</h2>
+                    <p id="response-modal-description">{apiResponse}</p>
+                </Box>
             </Modal>
         </div>
     );

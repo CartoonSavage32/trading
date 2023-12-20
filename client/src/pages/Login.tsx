@@ -24,6 +24,10 @@ const Login: React.FC = () => {
             });
             // Handle successful login response
             console.log('Login successful:', response.data);
+
+            // Store the session_id in localStorage
+            localStorage.setItem('session_id', response.data.session_id);
+
             navigate('/dashboard');
         } catch (error) {
             // Handle login error
@@ -32,56 +36,54 @@ const Login: React.FC = () => {
         }
     };
 
-    return (<Container maxWidth="sm">
-        <Box sx={
-            {
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                marginTop: '20vh'
-            }
-        }>
-            <Typography variant="h4" gutterBottom>
-                Login
-            </Typography>
-            <form>
-                <Grid container
-                    spacing={2}>
-                    <FormField label="Username"
-                        value={username}
-                        onChange={setUsername} />
-                    <FormField label="Password"
-                        value={password}
-                        onChange={setPassword}
-                        type="password" />
-                </Grid>
-                <Button variant="contained" color="primary"
-                    onClick={handleLogin}
-                    sx={
-                        { marginTop: '16px' }
-                    }>
-                    Login
-                </Button>
-                {loginError && (
-                    <Typography variant="body1" color="error">
-                        Username/email or password is incorrect. Please try again.
-                    </Typography>
-                )}
-            </form>
-            <Box sx={
-                {
+    return (
+        <Container maxWidth="sm">
+            <Box
+                sx={{
                     display: 'flex',
-                    justifyContent: 'flex-start',
-                    marginTop: 2
-                }
-            }>
-                <Typography variant="body2" gutterBottom>
-                    Don't have an account?
-                    <Link to="/signup">Sign Up</Link>
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    marginTop: '20vh'
+                }}
+            >
+                <Typography variant="h4" gutterBottom>
+                    Login
                 </Typography>
+                <form>
+                    <Grid container spacing={2}>
+                        <Grid item
+                            xs={12} >
+                            <FormField label="Username" value={username} onChange={setUsername} />
+                        </Grid>
+                        <Grid item
+                            xs={12}>
+                            <FormField label="Password" value={password} onChange={setPassword} type="password" />
+                        </Grid>
+                    </Grid>
+                    <Button variant="contained" color="primary" onClick={handleLogin} sx={{ marginTop: '16px' }}>
+                        Login
+                    </Button>
+                    {loginError && (
+                        <Typography variant="body1" color="error">
+                            Username/email or password is incorrect. Please try again.
+                        </Typography>
+                    )}
+                </form>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'flex-start',
+                        marginTop: 2
+                    }}
+                >
+                    <Typography variant="body2" gutterBottom>
+                        Don't have an account?
+                        <Link to="/signup">Sign Up</Link>
+                    </Typography>
+                </Box>
             </Box>
-        </Box>
-    </Container>);
+        </Container>
+    );
 };
 
 export default Login;

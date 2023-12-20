@@ -1,0 +1,36 @@
+# Node related
+/node_modules
+/package-lock.json
+/npm-debug.log
+
+# React/TypeScript related
+/.eslintcache
+/.pnp
+.pnp.js
+/build
+/tsconfig.json
+
+# Flask related
+*.pyc
+*.pyo
+*.pyd
+__pycache__
+*.egg-info/
+dist/
+build/
+*.egg
+*.env
+*.sqlite
+
+# IDE related
+.idea/
+.vscode/
+*.iml
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Log files
+logs
+*.log

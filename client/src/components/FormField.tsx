@@ -1,5 +1,5 @@
 import React from 'react';
-import { TextField, Grid } from '@mui/material';
+import { TextField } from '@mui/material';
 
 interface FormFieldProps {
     label: string;
@@ -8,11 +8,19 @@ interface FormFieldProps {
     type?: string;
     error?: boolean;
     helperText?: string;
+    style?: React.CSSProperties;
+    InputProps?: {
+        endAdornment?: React.ReactNode;
+    };
+    inputProps?: {
+        maxLength?: number;
+    };
+
 }
 
-const FormField: React.FC<FormFieldProps> = ({ label, value, onChange, type = 'text' , error, helperText}) => {
+const FormField: React.FC<FormFieldProps> = ({ label, value, onChange, type = 'text', error, helperText, style, InputProps, inputProps }) => {
     return (
-        <Grid item xs={12} sm={12}>
+        // <Grid item xs={12} sm={12}>
             <TextField
                 label={label}
                 fullWidth
@@ -20,10 +28,14 @@ const FormField: React.FC<FormFieldProps> = ({ label, value, onChange, type = 't
                 type={type}
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
-                error = {error}
-                helperText = {helperText}
+                error={error}
+                helperText={helperText}
+                style={style}
+                InputProps={InputProps}
+                inputProps={inputProps}
+
             />
-        </Grid>
+        // </Grid>
     );
 };
 

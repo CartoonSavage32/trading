@@ -1,6 +1,8 @@
 import os
 from fyers_apiv3 import fyersModel
-from src.common.constants.env_variable import REDIRECT_URL
+from src.common.constants.env_variable import (
+    REDIRECT_URL,
+)
 from urllib.parse import parse_qs, urlparse
 import requests
 import pyotp
@@ -8,22 +10,26 @@ import base64
 
 
 class FyersAuthService:
-    def __init__(self, appId, secretKey, fyId, totp, pin):
-        self.client_id = self.decrypt(appId)
-        self.secret_key = self.decrypt(secretKey)
-        self.fy_id = self.decrypt(fyId)
-        self.totp_key = self.decrypt(totp)
-        self.pin = self.decrypt(pin)
+    def __init__(
+        self,
+        APP_ID,
+        SECRETE_KEY,
+        FY_ID,
+        TOTP_KEY,
+        PIN,
+    ):
+        print("Fyer is being initialized")
+        self.client_id = APP_ID
+        self.secret_key = SECRETE_KEY
+        self.fy_id = FY_ID
+        self.totp_key = TOTP_KEY
+        self.pin = PIN
         self.redirect_url = REDIRECT_URL
+        self.status = {"status": "initializing"}
         self._initialize_fyers_models()
 
-    def decrypt(self, data):
-        # Decrypt the data
-        decrypted_data = self.cipher_suite.decrypt(data)
-        # Convert the decrypted data to string
-        return decrypted_data.decode("utf-8")
-
     def _initialize_fyers_models(self):
+        print("Initializing Fyers models...")
         # Generate and verify OTP
         url_send_login_otp = "https://api-t2.fyers.in/vagator/v2/send_login_otp_v2"
         res = requests.post(
@@ -88,11 +94,15 @@ class FyersAuthService:
             log_path=os.getcwd(),
         )
 
-        if response["code"] == 200:
-            return {"status": "success", "message": "Fyers verification successful"}
-        else:
-            return{"status" : "error", "message": response["message"]}
+        print("Fyers models initialized")
 
+        if response["code"] == 200:
+            self.status = {"status": "success", "message": "Fyers verification successful"}
+            return self.status
+        else:
+            self.status =  {"status": "error", "message": response["message"]}
+            return self.status
+        
     def _get_encoded_string(self, string):
         string = str(string)
         base64_bytes = base64.b64encode(string.encode("ascii"))
