@@ -34,3 +34,4 @@ build/
 # Log files
 logs
 *.log
+server/test.py

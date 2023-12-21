@@ -18,7 +18,6 @@ class FyersAuthService:
         TOTP_KEY,
         PIN,
     ):
-        print("Fyer is being initialized")
         self.client_id = APP_ID
         self.secret_key = SECRETE_KEY
         self.fy_id = FY_ID
@@ -29,7 +28,6 @@ class FyersAuthService:
         self._initialize_fyers_models()
 
     def _initialize_fyers_models(self):
-        print("Initializing Fyers models...")
         # Generate and verify OTP
         url_send_login_otp = "https://api-t2.fyers.in/vagator/v2/send_login_otp_v2"
         res = requests.post(
@@ -93,8 +91,6 @@ class FyersAuthService:
             token=response["access_token"],
             log_path=os.getcwd(),
         )
-
-        print("Fyers models initialized")
 
         if response["code"] == 200:
             self.status = {"status": "success", "message": "Fyers verification successful"}
